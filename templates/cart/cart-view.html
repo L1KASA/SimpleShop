@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            Ваша корзина
+            {% if cart.get_total_count != 0 %}
+                <span id="cart-summary" class="text-lg font-medium text-gray-600">
+                ({{ cart.get_total_count }} товаров)
+            </span>
+            {% endif %}
+        </h1>
+
+        {% if cart.get_total_count == 0 %}
+            <p class="text-gray-600 text-lg">Ваша корзина пуста</p>
+        {% else %}
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Левая колонка - товары -->
+                <div class="w-full lg:w-2/3">
+                    <div class="mb-4 flex items-center space-x-2">
+                        <input type="checkbox" id="select-all"
+                               class="w-5 h-5 text-green-500 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                        <label for="select-all" class="text-gray-600 cursor-pointer">Выбрать все товары</label>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">
+
+                        {% for product_id, product_data in cart.cart.items %}
+                            <div class="cart-item bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:shadow-md transition-shadow">
+                                <!-- Добавлен класс cart-item -->
+                                <div class="flex items-start gap-4">
+                                    <!-- Чекбокс -->
+                                    <label class="flex items-start">
+                                        <input type="checkbox" name="selected_products" value="{{ product_id }}"
+                                               class="w-5 h-5 text-green-500 bg-gray-100 border-gray-300 rounded focus:ring-green-500 mt-1">
+                                    </label>
+
+                                    <!-- Изображение товара -->
+                                    <div class="w-24 h-24 flex-shrink-0">
+                                        <img src="{{ product_data.image_url }}" alt="{{ product_data.product_name }}"
+                                             class="w-full h-full object-cover rounded-lg">
+                                    </div>
+
+                                    <!-- Информация о товаре -->
+                                    <div class="product-info flex-1"> <!-- Добавлен класс product-info -->
+                                        <h3 class="text-lg font-semibold text-gray-800">{{ product_data.product_name }}</h3>
+                                        <p class="text-gray-600 text-sm mb-2">ID: {{ product_id }}</p>
+                                        <p class="product-price text-lg font-bold text-gray-800"
+                                           data-price="{{ product_data.price }}">{{ product_data.price }} ₽</p>
+                                        <!-- Добавлен класс и атрибут -->
+                                    </div>
+
+                                    <!-- Управление количеством -->
+                                    <div class="flex flex-col items-end gap-2">
+                                        <button class="remove-from-cart text-red-500 hover:text-red-700 text-sm"
+                                                data-product-id="{{ product_id }}">
+                                            Удалить
+                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <button class="update-quantity w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                                                    data-product-id="{{ product_id }}" data-quantity-change="-1">−
+                                            </button>
+                                            <span class="quantity-cell w-8 text-center">{{ product_data.quantity }}</span>
+                                            <button class="update-quantity w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                                                    data-product-id="{{ product_id }}" data-quantity-change="1">+
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Правая колонка - сумма заказа -->
+                <div class="w-full lg:w-1/3">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 sticky top-4">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Сумма заказа</h3>
+
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Товары:</span>
+                                <span id="selected-products-count" class="font-medium">0 товаров</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Общая сумма:</span>
+                                <span id="total-price" class="text-xl font-bold text-gray-800">0 ₽</span>
+                            </div>
+                        </div>
+
+                        <form class="order-form" method="GET" action="{% url 'orders:order_create' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="selected_products" id="selected-products-input">
+                            <button type="submit"
+                                    class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg
+                               transition-colors font-medium text-lg">
+                                Перейти к оформлению
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Элементы интерфейса
+            const selectedProductsCount = document.getElementById("selected-products-count");
+            const totalPriceElement = document.getElementById("total-price");
+            const selectedProductsInput = document.getElementById("selected-products-input");
+            const selectAllCheckbox = document.getElementById('select-all');
+
+            // Состояние корзины
+            let totalSelected = 0;
+            let totalPrice = 0;
+            const selectedProductIds = [];
+
+            // Основная функция обновления интерфейса
+            function updateUI() {
+                // Обновляем счетчики
+                selectedProductsCount.textContent = `${totalSelected}`;
+                totalPriceElement.textContent = `${totalPrice.toFixed(1)} ₽`;
+
+                // Обновляем скрытое поле формы
+                selectedProductsInput.value = JSON.stringify(selectedProductIds);
+
+                // Обновляем состояние "Выбрать все"
+                const allCheckboxes = document.querySelectorAll('input[name="selected_products"]');
+                selectAllCheckbox.checked = allCheckboxes.length > 0 &&
+                    Array.from(allCheckboxes).every(cb => cb.checked);
+            }
+
+            // Полный пересчет состояния выбранных товаров
+            function refreshSelectionState() {
+                totalSelected = 0;
+                totalPrice = 0;
+                selectedProductIds.length = 0;
+
+                document.querySelectorAll('.cart-item').forEach(cartItem => {
+                    const checkbox = cartItem.querySelector('input[name="selected_products"]');
+                    if (checkbox.checked) {
+                        const productId = checkbox.value;
+                        const priceElement = cartItem.querySelector('.product-price');
+                        const quantityCell = cartItem.querySelector('.quantity-cell');
+
+                        const productPrice = parseFloat(priceElement.dataset.price);
+                        const quantity = parseInt(quantityCell.textContent);
+
+                        totalSelected += quantity;
+                        totalPrice += productPrice * quantity;
+                        selectedProductIds.push(productId);
+                    }
+                });
+
+                updateUI();
+            }
+
+            // Обработчик для "Выбрать все"
+            selectAllCheckbox.addEventListener('change', function () {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll('input[name="selected_products"]');
+
+                checkboxes.forEach(checkbox => {
+                    const wasChecked = checkbox.checked;
+                    checkbox.checked = isChecked;
+
+                    if (wasChecked !== isChecked) {
+                        const event = new Event('change');
+                        checkbox.dispatchEvent(event);
+                    }
+                });
+
+                refreshSelectionState();
+            });
+
+            // Обработчик изменения количества
+            document.querySelectorAll(".update-quantity").forEach((button) => {
+                button.addEventListener("click", async function () {
+                    const productId = this.dataset.productId;
+                    const quantityChange = parseInt(this.dataset.quantityChange);
+                    const cartItem = this.closest(".cart-item");
+                    const quantityCell = cartItem.querySelector(".quantity-cell");
+
+                    try {
+                        const response = await fetch("/cart/update/", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRFToken": document.cookie.match(/csrftoken=([^;]+)/)[1],
+                            },
+                            body: JSON.stringify({
+                                product_id: productId,
+                                quantity_change: quantityChange
+                            }),
+                        });
+
+                        const data = await response.json();
+
+                        if (data.updated_quantity <= 0) {
+                            cartItem.remove();
+                        } else {
+                            quantityCell.textContent = data.updated_quantity;
+                        }
+
+                        // Обновляем общий счетчик корзины
+                        document.getElementById("cart-summary").textContent =
+                            `(${data.cart_count} товаров)`;
+
+                        // Полный пересчет состояния
+                        refreshSelectionState();
+
+                    } catch (error) {
+                        console.error("Ошибка обновления количества:", error);
+                    }
+                });
+            });
+
+            // Обработчик удаления товара
+            document.querySelectorAll(".remove-from-cart").forEach((button) => {
+                button.addEventListener("click", async function () {
+                    const productId = this.dataset.productId;
+                    const cartItem = this.closest(".cart-item");
+
+                    try {
+                        const response = await fetch("/cart/delete/", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRFToken": document.cookie.match(/csrftoken=([^;]+)/)[1],
+                            },
+                            body: JSON.stringify({product_id: productId}),
+                        });
+
+                        const data = await response.json();
+
+                        if (data.cart_count === 0) {
+                            document.querySelector(".cart-container").innerHTML =
+                                "<p>Корзина пуста</p>";
+                        } else {
+                            cartItem.remove();
+                            document.getElementById("cart-summary").textContent =
+                                `(${data.cart_count} товаров)`;
+                        }
+
+                        // Полный пересчет состояния
+                        refreshSelectionState();
+
+                    } catch (error) {
+                        console.error("Ошибка удаления товара:", error);
+                    }
+                });
+            });
+
+            // Обработчик изменения состояния чекбоксов
+            document.querySelectorAll("input[name='selected_products']").forEach((checkbox) => {
+                checkbox.addEventListener("change", function () {
+                    refreshSelectionState();
+                });
+            });
+
+            // Обработчик оформления заказа
+            document.querySelector(".order-form").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                if (selectedProductIds.length === 0) {
+                    alert("Пожалуйста, выберите хотя бы один товар!");
+                    return;
+                }
+
+                const url = new URL(this.action);
+                url.searchParams.set('selected_products', JSON.stringify(selectedProductIds));
+                window.location.href = url.toString();
+            });
+
+            // Первоначальный расчет состояния
+            refreshSelectionState();
+        });
+    </script>
+{% endblock %}

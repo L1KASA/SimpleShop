@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href={% static '/css/output.css' %}>
+    <link href="{% static '/css/profile.css' %}" rel="stylesheet">
+    <title>Shop Gio</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+
+{% include "navbar.html" %}
+
+{% block content %}
+{% endblock content %}
+</body>
+</html>
+
+<script src="{% static '/js/cart.js' %}"></script>

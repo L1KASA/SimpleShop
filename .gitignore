@@ -1,0 +1,7 @@
+/static/images/
+/node_modules/
+/.venv/
+/media/
+/media/media/
+/djangoProject/settings.py
+

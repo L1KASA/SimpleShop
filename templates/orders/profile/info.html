@@ -1,0 +1,73 @@
+{% extends 'users/profile_navigate.html' %}
+
+{% block main_content %}
+<div class="w-full max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Мои заказы</h2>
+
+    {% if page_obj %}
+    <div class="space-y-6">
+        {% for order in page_obj %}
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold">Заказ №{{ order.id }}</h3>
+                    <p class="text-gray-600 text-sm">{{ order.created|date:"d.m.Y H:i" }}</p>
+                </div>
+                <span class="px-4 py-1 rounded-full {% if order.paid %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {% if order.paid %}Оплачен{% else %}Не оплачен{% endif %}
+                </span>
+            </div>
+
+            <div class="mb-4">
+                <p class="font-medium">Адрес доставки:</p>
+                <p class="text-gray-600">{{ order.city }}, {{ order.address }}</p>
+            </div>
+
+            <div class="border-t pt-4">
+                <h4 class="font-medium mb-3">Состав заказа:</h4>
+                <div class="space-y-3">
+                    {% for item in order.items.all %}
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                        <div>
+                            <p class="font-medium">{{ item.product.name }}</p>
+                            <p class="text-sm text-gray-500">{{ item.quantity }} × {{ item.price|floatformat:2 }} ₽</p>
+                        </div>
+                        <p class="font-medium">{{ item.get_price|floatformat:2 }} ₽</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="border-t pt-4 mt-4 flex justify-end">
+                <p class="text-xl font-semibold">
+                    Итого: {{ order.get_total_price|floatformat:2 }} ₽
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    <div class="flex justify-center items-center mt-8 space-x-4">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">Предыдущая</a>
+        {% endif %}
+
+        <span class="px-4 py-2 text-black bg-gray-100 rounded">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">Следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">Последняя</a>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-8">
+        <p class="text-gray-500 text-lg">У вас пока нет заказов</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

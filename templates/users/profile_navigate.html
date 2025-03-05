@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="min-h-screen flex justify-center items-center py-16">
+        <div class="flex w-full max-w-6xl bg-slate-200 p-6 rounded-lg shadow-md">
+            <div class="w-1/4 p-6 rounded-lg shadow-md">
+                <ul class="space-y-4">
+                    <li>
+                        <a href="{% url 'users:profile' %}" class="block text-blue-500 hover:text-blue-700">
+                            Профиль
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'orders:order_info' %}" class="block text-blue-500 hover:text-blue-700">
+                            Мои заказы
+                        </a>
+                    </li>
+                    {% if not perms.social_django.change_usersocialauth %}
+                        <li>
+                            <a href="{% url 'users:change_password' %}" class="block text-blue-500 hover:text-blue-700">
+                                Сменить пароль
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <form method="post" action="{% url 'users:delete_user' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="block text-red-500 hover:text-red-700">
+                                Удалить аккаунт
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="w-full ml-4">
+                {% block main_content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

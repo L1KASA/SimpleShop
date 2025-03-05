@@ -1,0 +1,9 @@
+{% block social %}
+    <p class="text-gray-600 text-center">или</p>
+    <p class="flex justify-center"><a href="{% url 'social:begin' 'github' %}"><img
+            src="/static/images/github.png" alt="github" class="mt-1 w-11 h-auto"></a>
+        <a href="{% url 'social:begin' 'vk-oauth2' %}"><img src="/media/images/VK.png" alt="VK"
+                                                            class="mt-1 w-11 h-auto"></a>
+        <a href="{% url 'social:begin' 'google-oauth2' %}"><img src="/media/images/gmail.png" alt="gmail"
+                                                                class="mt-1 w-11 h-auto"></a></p>
+{% endblock %}

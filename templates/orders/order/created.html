@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Заказ успешно создан</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Детали заказа:</h3>
+        
+        <!-- Информация о заказе -->
+        <div class="mb-6">
+            <p class="text-gray-600">Номер заказа: {{ order.id }}</p>
+            <p class="text-gray-600">Дата создания: {{ order.created }}</p>
+            <p class="text-gray-600">Статус оплаты: {% if order.paid %}Оплачен{% else %}Не оплачен{% endif %}</p>
+        </div>
+
+        <!-- Товары в заказе -->
+        <h4 class="text-lg font-semibold text-gray-700 mb-4">Товары:</h4>
+        <div class="space-y-3">
+            {% for item in order_items %}
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                <span class="text-gray-600">
+                    {{ item.product.name }} × {{ item.quantity }}
+                </span>
+                <span class="font-semibold text-gray-700">
+                    {{ item.price }} ₽
+                </span>
+            </div>
+            {% empty %}
+            <p class="text-gray-600">Товары отсутствуют.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

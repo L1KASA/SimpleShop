@@ -1,0 +1,88 @@
+/* static/css/modal.css */
+
+/* Изначально модальное окно скрыто */
+#password-modal {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out, visibility 0s 0.3s;
+}
+
+/* Когда чекбокс активирован, показываем модальное окно */
+#password-modal-toggle:checked ~ #password-modal {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.3s ease-in-out, visibility 0s;
+}
+.form-input {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border: 2px solid #ccc; /* Серый цвет рамки */
+    border-radius: 5px;
+    background-color: #f5faff; /* Светло-голубой фон поля */
+    color: #333; /* Цвет текста внутри поля */
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input::placeholder {
+    color: #aaa; /* Цвет текста-заполнителя (placeholder) */
+}
+
+.form-input:focus {
+    border-color: #007bff; /* Синий цвет рамки при фокусе */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Синяя подсветка при фокусе */
+    outline: none; /* Убираем стандартное обрамление */
+}
+
+.form-error {
+    color: #e74c3c; /* Красный цвет для ошибок */
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+/* Уведомления в левом нижнем углу */
+.alert-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    max-width: 300px;
+    color: white;
+    font-weight: bold;
+    position: relative;
+}
+
+/* Зеленый фон для успешных сообщений */
+.alert.success {
+    background-color: #28a745;
+}
+
+/* Красный фон для ошибок */
+.alert.error {
+    background-color: #dc3545;
+}
+
+/* Позиционирование уведомлений в левом нижнем углу */
+.fixed {
+    position: fixed;
+}
+
+.bottom-4 {
+    bottom: 1rem;
+}
+
+.left-4 {
+    left: 1rem;
+}
+
+.z-50 {
+    z-index: 50;
+}

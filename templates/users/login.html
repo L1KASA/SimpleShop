@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/4">
+            <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">Вход в аккаунт</h2>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+                {% for f in form %}
+                    <p><label class="form-label text-sm font-medium text-gray-700"
+                              for="{{ f.id_for_label }}">{{ f.label }}: </label>{{ f }}</p>
+                    <div class="form-error">{{ f.errors }}</div>
+                {% endfor %}
+                <p>
+                    <script src='https://www.google.com/recaptcha/api.js'></script>
+                <div class="form-group g-recaptcha" data-sitekey="6LfjY78qAAAAAOR1KC8wdL2Qud_0UDza9XQZBAPF"></div>
+                {% if messages %}
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                {% endif %}
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                        Войти
+                    </button>
+                </p>
+            </form>
+            <hr>
+            {% include 'users/social.html' %}
+            <div class="mt-1 text-center text-sm text-gray-600">
+                <a href="{% url 'users:password_reset' %}" class="text-blue-500 hover:underline">Забыли пароль?</a>
+            </div>
+            <div class="text-center text-sm text-gray-600">
+                <span>Все еще нет аккаунта? </span>
+                <a href="{% url 'users:signup' %}" class="text-blue-500 hover:underline">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+

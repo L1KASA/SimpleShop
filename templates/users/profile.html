@@ -1,0 +1,86 @@
+{% extends 'users/profile_navigate.html' %}
+
+{% block main_content %}
+    <div class="w-full max-w-3xl mx-auto">
+        <h2 class="text-2xl font-semibold mb-4 text-center">Профиль пользователя</h2>
+
+        {% if not edit_mode %}
+            <div class="space-y-6">
+                <div class="flex justify-center mb-6">
+                    {% if user.photo %}
+                        <div class="w-40 h-40 overflow-hidden rounded-full border border-gray-300 shadow">
+                            <img src="{{ user.photo.url }}" alt="photo" class="object-cover w-full h-full">
+                        </div>
+                    {% else %}
+                        <div class="w-40 h-40 overflow-hidden rounded-full border border-gray-300 shadow">
+                            <img src="{{ default_image }}" alt="photo" class="object-cover w-full h-full">
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <strong>Имя:</strong> {{ user.first_name }}
+                </div>
+                <div class="mb-4">
+                    <strong>Фамилия:</strong> {{ user.last_name }}
+                </div>
+                <div class="mb-4">
+                    <strong>Логин:</strong> {{ user.username }}
+                </div>
+            
+                <div class="mb-4">
+                    <strong>Email:</strong> {{ user.email }}
+                </div>
+                <div class="mb-4">
+                    <strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y" }}
+                </div>
+                <div class="mb-4">
+                    <strong>Дата рождения:</strong> {{ user.date_birth|date:"d.m.Y" }}
+                </div>
+
+                <div class="text-center">
+                    <a href="?edit=true"
+                       class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                        Редактировать
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <form method="post" class="space-y-6" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="flex justify-center mb-6">
+                    {% if user.photo %}
+                        <div class="w-40 h-40 overflow-hidden rounded-full border border-gray-300 shadow">
+                            <img src="{{ user.photo.url }}" alt="photo" class="object-cover w-full h-full">
+                        </div>
+                    {% else %}
+                        <div class="w-40 h-40 overflow-hidden rounded-full border border-gray-300 shadow">
+                            <img src="{{ default_image }}" alt="photo" class="object-cover w-full h-full">
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-error text-center text-red-500">{{ form.non_field_errors }}</div>
+
+                {% for f in form %}
+                    <div class="flex items-center mb-4">
+                        <label class="form-label w-32 text-right pr-4"
+                               for="{{ f.id_for_label }}">{{ f.label }}: </label>
+                        <div class="flex-1">
+                            {{ f }}
+                        </div>
+                    </div>
+                    <div class="form-error text-center text-red-500 mb-4">{{ f.errors }}</div>
+                {% endfor %}
+
+                <div class="text-center">
+                    <button type="submit"
+                            class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
