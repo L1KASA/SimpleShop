@@ -13,22 +13,22 @@ from django.contrib.auth.views import PasswordResetView, \
 
 
 class RegisterUser(CreateView):
+    """Handles user registration."""
     form_class = NewUserForm
     template_name = 'users/signup.html'
     extra_context = {'title': 'Регистрация'}
     success_url = reverse_lazy('users:login')
 
     def form_valid(self, form):
-        # После проверки ReCAPTCHA сохраняем форму
         if self.request.recaptcha_is_valid:
             form.save()
             return super().form_valid(form)
-        # В случае ошибки возвращаем пользователя на страницу регистрации
 
         return render(self.request, 'users/signup.html', self.get_context_data())
 
 
 class LoginUser(LoginView):
+    """Handles user login."""
     form_class = LoginUserForm
     template_name = 'users/login.html'
     extra_context = {'title': 'Вход'}
@@ -41,7 +41,9 @@ class LoginUser(LoginView):
     def get_success_url(self):
         return reverse('myapp:index')
 
+
 class ProfileUser(LoginRequiredMixin, UpdateView):
+    """Handles user profile updates."""
     model = get_user_model()
     form_class = ProfileUserForm
     template_name = 'users/profile.html'
@@ -63,7 +65,8 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         return context
 
 
-class UserPasswordChange(PasswordChangeView):
+class UserPasswordChange(LoginRequiredMixin, PasswordChangeView):
+    """Handles user password change."""
     form_class = UserPasswordChangeForm
     success_url = reverse_lazy('users:password_change_complete')
     template_name = "users/password_change.html"
@@ -80,6 +83,7 @@ class UserPasswordChange(PasswordChangeView):
 
 
 def delete_user(request):
+    """Handles user deletion."""
     if request.method == 'POST':
         user = request.user
         user.delete()
@@ -90,6 +94,7 @@ def delete_user(request):
 
 
 class CustomPasswordResetView(PasswordResetView):
+    """Handles user password reset functionality."""
     form_class = CustomPasswordResetForm
     template_name = "users/password_reset_form.html"
     email_template_name = "users/password_reset_email.html"
@@ -97,6 +102,7 @@ class CustomPasswordResetView(PasswordResetView):
 
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Handles user password reset confirmation."""
     form_class = CustomPasswordResetConfirmForm
     template_name = "users/password_reset_confirm.html"
     success_url = reverse_lazy("users:password_reset_complete")

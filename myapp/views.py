@@ -1,43 +1,22 @@
-from django.http import Http404
-from django.shortcuts import render
-
+from django.shortcuts import render, get_object_or_404
 from category.models import Category
-from myapp.Filters.FilterFactory import FilterFactory
-from myapp.exceptioins import ProductNotFoundException
 from myapp.models import Product
+from myapp.services import CoreService
 
 
 def index(request):
-    # Получаем параметры фильтров и конвертируем их в нужные типы
-    filter_params = {
-        'min_price': int(request.GET.get('min_price')) if request.GET.get('min_price') else None,
-        'max_price': int(request.GET.get('max_price')) if request.GET.get('max_price') else None,
-        'category': request.GET.get('category') if request.GET.get('category') else None,
-        'min_weight': float(request.GET.get('min_weight')) if request.GET.get('min_weight') else None,
-        'max_weight': float(request.GET.get('max_weight')) if request.GET.get('max_weight') else None,
+
+    filter_params = CoreService.extract_filter_params(request)
+
+    items = CoreService.get_filtred_products(filter_params)
+
+    context = {
+        'items': items,
+        'categories': Category.objects.all()
     }
-
-    factory = FilterFactory()
-    filters = factory.create_filters(filter_params)
-
-    # QuerySet всех продуктов
-    items = Product.objects.all()
-
-    # Применяем фильтры*
-    for filter_instance in filters:
-        items = filter_instance.apply_filter(items)
-    categories = Category.objects.all()
-    context = {'items': items, 'categories': categories}
     return render(request, "index.html", context)
 
 
 def id_item(request, id):
-    try:
-        item = Product.objects.get(id=id)
-    except ProductNotFoundException as e:
-        raise Http404(str(e))
-    context = {'item': item}
-    return render(request, "phone.html", context)
-
-
-
+    item = get_object_or_404(Product, pk=id)
+    return render(request, "phone.html", {'item': item})
