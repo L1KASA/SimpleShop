@@ -6,10 +6,12 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from djangoProject.decorators import handler_api_errors
 from .services import OrderViewService
 
-logger = logging.getLogger(__name__)
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Order
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required

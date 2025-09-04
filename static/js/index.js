@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     wishlistButtons.forEach((button, index) => {
         button.addEventListener('click', function() {
-            const icon = wishlistIcons[index];  // Получаем соответствующую иконку для этого кнопки
+            const icon = wishlistIcons[index];  // Получаем соответствующую иконку для этой кнопки
             if (icon.src.includes('wishlist.svg')) {
                 icon.src = '/static/images/redWishlist.svg';
             } else {

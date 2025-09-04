@@ -7,8 +7,8 @@ from djangoProject.decorators import handler_api_errors
 from djangoProject.utils import parse_json_body
 
 
-@login_required
 @handler_api_errors
+@require_POST
 def cart_add(request, product_id):
     """Handle adding product to cart"""
     result = CartService.add_to_cart(request, product_id)
@@ -19,7 +19,15 @@ def cart_add(request, product_id):
 def cart_view(request):
     """Handle cart view"""
     cart_data = CartService.get_cart_data(request)
-    return render(request, 'cart/cart-view.html', cart_data)
+
+
+    context = {
+        'cart_items': cart_data['cart_items'],
+        'total_price': cart_data['total_price'],
+        'cart_count': cart_data['cart_count']
+    }
+
+    return render(request, 'cart/cart-view.html', context)
 
 
 @login_required
@@ -27,10 +35,10 @@ def cart_view(request):
 @require_POST
 def cart_delete(request):
     """Handle remove product from cart"""
-    data = parse_json_body(request)  # json.loads(request.body)
+    data = parse_json_body(request)
     product_id = int(data.get('product_id'))
 
-    result = CartService.delete_from_cart(request, product_id)
+    result = CartService.remove_from_cart(request, product_id)
     return JsonResponse(result)
 
 

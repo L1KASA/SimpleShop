@@ -1,7 +1,7 @@
 import json
 import logging
 
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404
 
 from cart.Cart import Cart
 from myapp.models import Product

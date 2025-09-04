@@ -1,5 +1,3 @@
-import logging
-from itertools import product
 
 from cart.models import Cart as CartModel
 
