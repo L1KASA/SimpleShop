@@ -99,15 +99,26 @@ class OrderViewService:
         if 'selected_products' in request.session:
             del request.session['selected_products']
 
-    def _get_selected_items(cart, selected_items):
+    @staticmethod
+    def _get_selected_items(cart, selected_ids):
         """
         Retrieves selected items from the cart.
-        :param selected_items: List of selected products ids.
+        :param selected_ids: List of selected products ids.
         :return: A dictionary of selected items.
         """
-        return {str(pid): cart.cart[str(pid)]
-                for pid in selected_items if str(pid) in cart.cart}
+        selected_items = {}
+        for pid in selected_ids:
+            pid_str = str(pid)
+            if pid_str in cart.cart:
+                cart_item = cart.cart[pid_str]
+                selected_items[pid_str] = {
+                    'product_name': cart_item['name'],
+                    'price': cart_item['price'],
+                    'quantity': cart_item['quantity']
+                }
+        return selected_items
 
+    @staticmethod
     def _calculate_total_price(selected_items):
         """
         Calculates the total price for selected items.
