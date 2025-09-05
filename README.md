@@ -1,4 +1,4 @@
-# django-shop
+# [![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=450&size=30&duration=5100&pause=800&width=437&lines=django-shop)](https://git.io/typing-svg)
 
 ## Установка и запуск
 ### 1. Создание виртуального окружения
