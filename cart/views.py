@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from cart.services import CartService
 from django.http import JsonResponse
-from djangoProject.decorators import handler_api_errors
-from djangoProject.utils import parse_json_body
+from core.decorators import handler_api_errors
+from core.utils import parse_json_body
 
 
 @handler_api_errors

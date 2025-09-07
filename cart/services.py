@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from myapp.models import Product
+from categories.models import Product
 from decimal import Decimal
 
 

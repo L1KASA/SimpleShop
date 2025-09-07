@@ -4,14 +4,14 @@
     <div class="max-w-7xl mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
             Ваша корзина
-            {% if data.cart_count != 0 %}
+            {% if cart_count != 0 %}
                 <span id="cart-summary" class="text-lg font-medium text-gray-600">
                 ({{ cart_count }} товаров)
             </span>
             {% endif %}
         </h1>
 
-        {% if data.cart_count == 0 %}
+        {% if cart_count == 0 %}
             <p class="text-gray-600 text-lg">Ваша корзина пуста</p>
         {% else %}
             <div class="flex flex-col lg:flex-row gap-8">

@@ -24,14 +24,14 @@
                                    value="{{ request.GET.max_price }}">
                         </div>
                         <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700">Категория</label>
-                            <select name="category" id="category"
+                            <label for="categories" class="block text-sm font-medium text-gray-700">Категория</label>
+                            <select name="categories" id="categories"
                                     class="mt-1 p-2 border border-gray-300 rounded-md w-full">
                                 <option value="">Все категории</option>
-                                {% for category in categories %}
-                                    <option value="{{ category.name }}"
-                                            {% if category.name == request.GET.category %}selected{% endif %}>
-                                        {{ category.name }}
+                                {% for categories in categories %}
+                                    <option value="{{ categories.name }}"
+                                            {% if categories.name == request.GET.categories %}selected{% endif %}>
+                                        {{ categories.name }}
                                     </option>
                                 {% endfor %}
                             </select>
@@ -65,7 +65,7 @@
                         {% for item in items %}
                             <!-- Основные изменения здесь -->
                             <div class="bg-white rounded overflow-hidden shadow-md cursor-pointer hover:scale-[1.02] transition-all flex flex-col h-full"> <!-- Добавляем flex и h-full -->
-                                <a href="{% url 'myapp:id_item' item.id %}" class="block flex-grow"> <!-- flex-grow для растягивания -->
+                                <a href="{% url 'catalog:id_item' item.id %}" class="block flex-grow"> <!-- flex-grow для растягивания -->
                                     <div class="w-full h-48 overflow-hidden"> <!-- Фиксированная высота изображения -->
                                         <img src="{{ item.image_url }}" alt="{{ item.name }}"
                                              class="w-full h-full object-cover object-center"/>

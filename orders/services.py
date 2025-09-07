@@ -4,7 +4,7 @@ import logging
 from django.shortcuts import get_object_or_404
 
 from cart.Cart import Cart
-from myapp.models import Product
+from categories.models import Product
 from orders.forms import OrderCreateForm
 from orders.models import OrderItem
 

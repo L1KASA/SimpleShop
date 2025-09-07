@@ -1,7 +1,7 @@
 {% load static %}
 <nav class="bg-white shadow-md py-4 px-6">
     <div class="flex items-center justify-between max-w-6xl mx-auto ml-auto">
-        <a href="{% url 'myapp:index' %}" class="flex items-center gap-2">
+        <a href="{% url 'catalog:index' %}" class="flex items-center gap-2">
             <img src="{% static 'images/shop.png' %}" alt="logo" class="h-8 w-8">
             <span class="text-xl font-bold text-gray-800">Shop Gio</span>
         </a>
@@ -16,7 +16,7 @@
 
         <!-- Меню -->
         <div class="hidden md:flex items-center gap-6 ml-auto space-x-1">
-            <a href="{% url 'myapp:index' %}" class="text-gray-600 hover:text-gray-800 font-medium">Главное меню</a>
+            <a href="{% url 'catalog:index' %}" class="text-gray-600 hover:text-gray-800 font-medium">Главное меню</a>
             <a href="#" class="text-gray-600 hover:text-gray-800 font-medium">О нас</a>
             <a href="#" class="text-gray-600 hover:text-gray-800 font-medium">Контакты</a>
         </div>
@@ -60,7 +60,7 @@
     <!-- Мобильное меню -->
     <div class="hidden" id="mobile-menu">
         <div class="flex flex-col items-start gap-4 mt-4 ml-auto">
-            <a href="{% url 'myapp:index' %}" class="text-gray-600 hover:text-gray-800 font-medium">Главное меню</a>
+            <a href="{% url 'catalog:index' %}" class="text-gray-600 hover:text-gray-800 font-medium">Главное меню</a>
             <a href="#" class="text-gray-600 hover:text-gray-800 font-medium">О нас</a>
             <a href="#" class="text-gray-600 hover:text-gray-800 font-medium">Контакты</a>
             <div class="flex flex-col items-start gap-2 mt-4">

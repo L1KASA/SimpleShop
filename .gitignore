@@ -3,5 +3,5 @@
 /.venv/
 /media/
 /media/media/
-/djangoProject/settings.py
+/core/settings.py
 

@@ -3,7 +3,7 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from djangoProject.decorators import handler_api_errors
+from core.decorators import handler_api_errors
 from .services import OrderViewService
 
 

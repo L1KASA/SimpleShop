@@ -27,7 +27,7 @@
                 <!-- Основное фото товара -->
                 <div class="w-full md:w-3/4 p-4 flex justify-center items-center bg-gray-100 border border-gray-300 rounded-lg">
                     <img id="main-image" src="{{ item.image_url }}" alt="Основное фото"
-                         class="w-full h-auto object-cover rounded-lg">
+                         class="w-full h-[33vh] object-contain rounded-lg">
                 </div>
 
                 <!-- Информация о товаре -->
@@ -64,7 +64,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600 font-medium">Категория:</span>
-                            <span class="text-gray-800">{{ item.category.name }}</span>
+                            <span class="text-gray-800">{{ item.categories.name }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600 font-medium">Вес:</span>

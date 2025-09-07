@@ -28,7 +28,11 @@ python manage.py runserver
 # Запуск с HTTPS (требует настройки)
 python manage.py runserver_plus --cert-file cert.crt
 ```
-#### 5. Открыть в браузере
+#### 5. Создать суперпользователя
+```
+python manage.py createsuperuser
+```
+#### 6. Открыть в браузере
 * HTTP: http://127.0.0.1:8000/
 * HTTPS: https://siterandomshop.ru:8000/
 

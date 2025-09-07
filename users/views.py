@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
-from djangoProject import settings
+from core import settings
 from .forms import NewUserForm, LoginUserForm, UserPasswordChangeForm, ProfileUserForm, CustomPasswordResetConfirmForm
 from .forms import CustomPasswordResetForm
 from django.contrib.auth.views import PasswordResetView, \
@@ -39,7 +39,7 @@ class LoginUser(LoginView):
         return super().post(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('myapp:index')
+        return reverse('categories:index')
 
 
 class ProfileUser(LoginRequiredMixin, UpdateView):
