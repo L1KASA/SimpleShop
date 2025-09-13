@@ -18,7 +18,7 @@ def cart_add(request, product_id):
 @handler_api_errors
 def cart_view(request):
     """Handle cart view"""
-    cart_data = CartService.get_cart_data(request)
+    cart_data = CartService.get_cart_items(request)
 
 
     context = {
