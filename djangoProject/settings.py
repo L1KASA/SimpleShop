@@ -170,7 +170,7 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 
 AUTH_USER_MODEL = 'users.User'
 
-DEFAULT_USER_IMAGE = MEDIA_URL + 'img/default_user.jpg'
+DEFAULT_USER_IMAGE = '/static/images/default_user.png'
 
 LANGUAGES = [
     ('ru', 'Russian'),
