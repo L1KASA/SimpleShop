@@ -1,10 +1,8 @@
 import json
 import logging
+from decimal import Decimal
 
-from django.shortcuts import get_object_or_404
-
-from cart.Cart import Cart
-from myapp.models import Product
+from cart.CartFactory import CartFactory
 from orders.forms import OrderCreateForm
 from orders.models import OrderItem
 
@@ -15,12 +13,12 @@ class OrderService:
     """Service class for handling order operations."""
 
     @staticmethod
-    def create_order(user, form, cart, selected_ids):
+    def create_order(user, form, cart_handler, selected_ids):
         """
         Creates an order for the user based on the selected items in the cart.
         :param user: The user placing the order.
         :param form: The order creation form.
-        :param cart: The user's shopping cart.
+        :param cart_handler: The cart handler (CartDB or CartSession).
         :param selected_ids: List of the selected product ids.
         :return: The created order if successful, None otherwise.
         """
@@ -29,15 +27,20 @@ class OrderService:
             order.user = user
             order.save()
 
+            # Получаем все товары из корзины
+            cart_data = cart_handler.get_cart_items()
+            cart_items = {str(item['product'].id): item for item in cart_data['cart_items']}
+
             # Добавляем товары в заказ
             for product_id in selected_ids:
                 product_id_str = str(product_id)
-                cart_item = cart.cart.get(product_id_str)
-                if not cart_item:
+                if product_id_str not in cart_items:
                     logger.warning(f"Товар {product_id} не найден в корзине")
                     continue
-                product_id_int = int(product_id)
-                product = get_object_or_404(Product, id=product_id_int)
+
+                cart_item = cart_items[product_id_str]
+                product = cart_item['product']
+
                 OrderItem.objects.create(
                     order=order,
                     product=product,
@@ -46,11 +49,8 @@ class OrderService:
                 )
 
             # Удаляем выбранные товары из корзины
-            for pid in selected_ids:
-                pid_str = str(pid)
-                if pid_str in cart.cart:
-                    del cart.cart[pid_str]
-            cart.save()
+            for product_id in selected_ids:
+                cart_handler.remove_from_cart(product_id)
 
             return order
         return None
@@ -66,12 +66,12 @@ class OrderViewService:
         :param request: The HTTP request object.
         :return: A tuple containing with order (if created) and the context dictionary.
         """
-        cart = Cart(request)
+        cart_handler = CartFactory.build_cart(request)
         selected_ids = request.session.get('selected_products', [])
 
         if request.method == 'POST':
             form = OrderCreateForm(request.POST)
-            order = OrderService.create_order(request.user, form, cart, selected_ids)
+            order = OrderService.create_order(request.user, form, cart_handler, selected_ids)
             if order:
                 OrderViewService._clear_selected_products_from_session(request)
                 return order, None  # Возвращаем заказ и пустой контекст для редиректа
@@ -81,7 +81,7 @@ class OrderViewService:
             logger.warning(f"GET selected_ids: {selected_ids}")
             form = OrderCreateForm()
 
-        selected_items = OrderViewService._get_selected_items(cart, selected_ids)
+        selected_items = OrderViewService._get_selected_items(cart_handler, selected_ids)
         total_price = OrderViewService._calculate_total_price(selected_items)
 
         return None, {
@@ -100,21 +100,25 @@ class OrderViewService:
             del request.session['selected_products']
 
     @staticmethod
-    def _get_selected_items(cart, selected_ids):
+    def _get_selected_items(cart_handler, selected_ids):
         """
         Retrieves selected items from the cart.
+        :param cart_handler: The cart handler instance.
         :param selected_ids: List of selected products ids.
         :return: A dictionary of selected items.
         """
+        cart_data = cart_handler.get_cart_items()
+        cart_items = {str(item['product'].id): item for item in cart_data['cart_items']}
+
         selected_items = {}
         for pid in selected_ids:
             pid_str = str(pid)
-            if pid_str in cart.cart:
-                cart_item = cart.cart[pid_str]
+            if pid_str in cart_items:
+                cart_item = cart_items[pid_str]
                 selected_items[pid_str] = {
-                    'product_name': cart_item['name'],
+                    'product_name': cart_item['product'].name,
                     'price': cart_item['price'],
-                    'quantity': cart_item['quantity']
+                    'quantity': cart_item['quantity'],
                 }
         return selected_items
 
@@ -122,9 +126,10 @@ class OrderViewService:
     def _calculate_total_price(selected_items):
         """
         Calculates the total price for selected items.
-        :return: Dictionary of selected items.
+        :param selected_items: Dictionary of selected items.
+        :return: Total price as Decimal.
         """
         return sum(
-            float(item['price']) * item['quantity']
+            Decimal(str(item['price'])) * item['quantity']
             for item in selected_items.values()
         )

@@ -23,19 +23,19 @@ class CartInterface(ABC):
         pass
 
     @abstractmethod
-    def remove_from_cart(self, *args: Any, **kwargs: Any):
+    def remove_from_cart(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         pass
 
     @abstractmethod
-    def get_cart_count(self, *args: Any, **kwargs: Any):
+    def get_cart_count(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         pass
 
     @abstractmethod
-    def get_cart_items(self, *args: Any, **kwargs: Any):
+    def get_cart_items(self, *args: Any, **kwargs: Any) -> int:
         pass
 
     @abstractmethod
-    def clear_cart(self, *args: Any, **kwargs: Any):
+    def clear_cart(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         pass
 
     @abstractmethod
@@ -190,7 +190,6 @@ class CartDB(CartInterface):
                 'error': str(e)
             }
 
-
     def clear_cart(self):
         """Clear database cart"""
         try:
@@ -224,8 +223,6 @@ class CartDB(CartInterface):
                 'success': False,
                 'message': 'Cart not saved',
             }
-
-
 
 
 class CartSession(CartInterface):
