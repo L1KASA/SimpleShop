@@ -27,15 +27,13 @@ class OrderService:
             order.user = user
             order.save()
 
-            # Получаем все товары из корзины
             cart_data = cart_handler.get_cart_items()
             cart_items = {str(item['product'].id): item for item in cart_data['cart_items']}
 
-            # Добавляем товары в заказ
             for product_id in selected_ids:
                 product_id_str = str(product_id)
                 if product_id_str not in cart_items:
-                    logger.warning(f"Товар {product_id} не найден в корзине")
+                    logger.warning(f"Product {product_id} not found in cart for user {user.id}")
                     continue
 
                 cart_item = cart_items[product_id_str]
@@ -48,7 +46,6 @@ class OrderService:
                     quantity=cart_item['quantity']
                 )
 
-            # Удаляем выбранные товары из корзины
             for product_id in selected_ids:
                 cart_handler.remove_from_cart(product_id)
 

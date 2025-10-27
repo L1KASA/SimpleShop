@@ -45,14 +45,14 @@ class CartInterface(ABC):
 
 class CartDB(CartInterface):
     def __init__(self, request: HttpRequest) -> None:
-        self.request = request
-        self.user = request.user
+        self._request = request
+        self._user = request.user
 
     def add_to_cart(self, product: Product):
         """Add product to database cart"""
         try:
             cart_item, created = Cart.objects.get_or_create(
-                user=self.user,
+                user=self._user,
                 product=product,
                 defaults={'quantity': 0}
             )
@@ -86,7 +86,7 @@ class CartDB(CartInterface):
     def update_quantity(self, product_id: int, quantity_change: int):
         """Update product quantity"""
         try:
-            cart = Cart.objects.filter(user=self.user, product_id=product_id).first()
+            cart = Cart.objects.filter(user=self._user, product_id=product_id).first()
             if not cart:
                 return {
                     'success': False,
@@ -119,7 +119,7 @@ class CartDB(CartInterface):
 
     def remove_from_cart(self, product_id: int):
         try:
-            cart = Cart.objects.filter(user=self.user, product_id=product_id).first()
+            cart = Cart.objects.filter(user=self._user, product_id=product_id).first()
 
             if cart is None:
                 return {
@@ -138,7 +138,7 @@ class CartDB(CartInterface):
                 'cart_count': cart_count,
             }
         except Cart.DoesNotExist:
-            logger.warning(f"Product {product_id} not found in cart for user {self.user}")
+            logger.warning(f"Product {product_id} not found in cart for user {self._user}")
             return {
                 'success': False,
                 'message': 'Product not found in cart',
@@ -147,7 +147,7 @@ class CartDB(CartInterface):
     def get_cart_count(self):
         """Get total items count from database"""
         try:
-            result = Cart.objects.filter(user=self.user).aggregate(total=Sum('quantity'))
+            result = Cart.objects.filter(user=self._user).aggregate(total=Sum('quantity'))
             return result['total'] or 0
         except Exception as e:
             logger.error(e)
@@ -157,7 +157,7 @@ class CartDB(CartInterface):
         """Get cart items for template from database"""
         from decimal import Decimal
         try:
-            cart = Cart.objects.filter(user=self.user).select_related('product')
+            cart = Cart.objects.filter(user=self._user).select_related('product')
             cart_items = []
             total_price = Decimal('0.00')
 
@@ -193,7 +193,7 @@ class CartDB(CartInterface):
     def clear_cart(self):
         """Clear database cart"""
         try:
-            Cart.objects.filter(user=self.user).delete()
+            Cart.objects.filter(user=self._user).delete()
             logger.info("Cart cleared successfully")
             return {
                 'success': True,
@@ -209,7 +209,7 @@ class CartDB(CartInterface):
 
     def save_cart(self):
         try:
-            cart = Cart.objects.filter(user=self.user)
+            cart = Cart.objects.filter(user=self._user)
             for item in cart:
                 item.save()
             logger.info("Cart saved to database")
@@ -227,20 +227,20 @@ class CartDB(CartInterface):
 
 class CartSession(CartInterface):
     def __init__(self, request: HttpRequest) -> None:
-        self.request = request
-        self.session = request.session
-        self.cart = self.session.get('cart', {})
-        self.user = request.user
+        self._request = request
+        self._session = request.session
+        self._cart = self._session.get('cart', {})
+        self._user = request.user
 
     def add_to_cart(self, product: Product):
         try:
             """Add product to session cart"""
             product_id_str = str(product.id)
 
-            if product_id_str in self.cart:
-                self.cart[product_id_str]['quantity'] += 1
+            if product_id_str in self._cart:
+                self._cart[product_id_str]['quantity'] += 1
             else:
-                self.cart[product_id_str] = {
+                self._cart[product_id_str] = {
                     'quantity': 1,
                     'price': str(product.price),
                     'name': product.name,
@@ -262,14 +262,14 @@ class CartSession(CartInterface):
         """Update product quantity"""
         product_id_str = str(product_id)
 
-        if product_id_str in self.cart:
-            new_quantity = self.cart[product_id_str]['quantity'] + quantity_change
+        if product_id_str in self._cart:
+            new_quantity = self._cart[product_id_str]['quantity'] + quantity_change
 
             if new_quantity <= 0:
-                del self.cart[product_id_str]
+                del self._cart[product_id_str]
                 item_quantity = 0
             else:
-                self.cart[product_id_str]['quantity'] = new_quantity
+                self._cart[product_id_str]['quantity'] = new_quantity
                 item_quantity = new_quantity
 
             self.save_cart()
@@ -289,8 +289,8 @@ class CartSession(CartInterface):
     def remove_from_cart(self, product_id: int):
         product_id_str = str(product_id)
 
-        if product_id_str in self.cart:
-            del self.cart[product_id_str]
+        if product_id_str in self._cart:
+            del self._cart[product_id_str]
             self.save_cart()
 
             return {
@@ -307,7 +307,7 @@ class CartSession(CartInterface):
 
     def get_cart_count(self):
         """Calculate total items count"""
-        return sum(item['quantity'] for item in self.cart.values())
+        return sum(item['quantity'] for item in self._cart.values())
 
     def get_cart_items(self):
         """Get cart items for template from session"""
@@ -315,7 +315,7 @@ class CartSession(CartInterface):
         from myapp.models import Product
 
         try:
-            cart = self.request.session.get('cart', {})
+            cart = self._request.session.get('cart', {})
             cart_items = []
             total_price = Decimal('0.00')
             products_to_remove = []
@@ -364,8 +364,8 @@ class CartSession(CartInterface):
     def save_cart(self):
         """Save cart to session"""
         try:
-            self.request.session['cart'] = self.cart
-            self.request.session.modified = True
+            self._request.session['cart'] = self._cart
+            self._request.session.modified = True
             logger.info('Cart saved to session')
             return {
                 'success': True,
@@ -380,8 +380,8 @@ class CartSession(CartInterface):
 
     def clear_cart(self):
         """Clear entire cart"""
-        self.request.session['cart'] = {}
-        self.request.session.modified = True
+        self._request.session['cart'] = {}
+        self._request.session.modified = True
         return {
             'success': True,
             'message': 'Cart cleared',

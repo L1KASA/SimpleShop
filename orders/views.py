@@ -18,10 +18,13 @@ logger = logging.getLogger(__name__)
 @handler_api_errors
 def order_create(request):
     """Handles creating a new order."""
-    order, context = OrderViewService.prepare_order_create_context(request)
-    if order:
-        return redirect('orders:order_created', order_id=order.id)
-    return render(request, 'orders/order/create.html', context)
+    try:
+        order, context = OrderViewService.prepare_order_create_context(request)
+        if order:
+            return redirect('orders:order_created', order_id=order.id)
+        return render(request, 'orders/order/create.html', context)
+    except Exception as e:
+        logger.error(f"Unexpected error in order_create: {e}")
 
 
 @login_required
