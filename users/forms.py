@@ -26,12 +26,11 @@ class NewUserForm(UserCreationForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
         }
-
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if get_user_model().objects.filter(email=email).exists():
-            raise forms.ValidationError("Такой E-mail уже существует!")
-        return email
+        error_messages = {
+            'email': {
+                'unique': "Такой E-mail уже существует!",
+            },
+        }
 
 class LoginUserForm(AuthenticationForm):
     username = forms.CharField(
