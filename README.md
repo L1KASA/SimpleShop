@@ -22,10 +22,10 @@ python manage.py migrate
 ````
 #### 4. Запустить сервер 
 ```
-# Стандартный запуск
+# Стандартный запуск (HTTP)
 python manage.py runserver
 
-# Запуск с HTTPS (требует настройки)
+# Запуск с HTTPS (требуются сгенерированные сертификаты)
 python manage.py runserver_plus --cert-file cert.crt
 ```
 #### 5. Открыть в браузере
@@ -51,7 +51,11 @@ C:\Windows\System32\drivers\etc\hosts
 ```
 127.0.0.1       siterandomshop.ru
 ```
-### 3. Запустить с HTTPS
+### 3. Сгенерировать SSL сертификаты
+```bash
+openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout cert.key -out cert.crt
+```
+### 4. Запустить с HTTPS
 ```
 python manage.py runserver_plus --cert-file cert.crt
 ```
