@@ -38,6 +38,16 @@ class LoginUser(LoginView):
             return self.form_invalid(self.get_form())
         return super().post(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        """Called after successful login - sync session cart to DB"""
+        response = super().form_valid(form)
+        
+        # Sync session cart to database cart
+        from cart.CartBase import CartSyncService
+        CartSyncService.sync_session_to_db(self.request)
+        
+        return response
+
     def get_success_url(self):
         return reverse('myapp:index')
 

@@ -30,7 +30,6 @@ def cart_view(request):
     return render(request, 'cart/cart-view.html', context)
 
 
-@login_required
 @handler_api_errors
 @require_POST
 def cart_delete(request):
@@ -42,7 +41,6 @@ def cart_delete(request):
     return JsonResponse(result)
 
 
-@login_required
 @handler_api_errors
 @require_POST
 def cart_update(request):

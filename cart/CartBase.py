@@ -230,6 +230,100 @@ class CartDB(CartInterface, CartCalculatorMixin):
             logger.error(f'Cart not saved to database: {str(e)}')
             raise CartOperationError(f"Failed to save cart: {str(e)}") from e
 
+    def bulk_update_items(self, cart_items):
+        """Bulk update cart items quantities"""
+        try:
+            Cart.objects.bulk_update(cart_items, ['quantity'])
+            logger.info(f"Bulk updated {len(cart_items)} cart items")
+        except Exception as e:
+            logger.error(f"Error bulk updating cart items: {str(e)}")
+            raise CartOperationError(f"Failed to bulk update cart items: {str(e)}") from e
+
+    def bulk_create_items(self, cart_items):
+        """Bulk create new cart items"""
+        try:
+            Cart.objects.bulk_create(cart_items)
+            logger.info(f"Bulk created {len(cart_items)} cart items")
+        except Exception as e:
+            logger.error(f"Error bulk creating cart items: {str(e)}")
+            raise CartOperationError(f"Failed to bulk create cart items: {str(e)}") from e
+
+
+class CartSyncService:
+    """Service for synchronizing carts between session and database"""
+
+    @staticmethod
+    def sync_session_to_db(request):
+        """
+        Synchronize cart items from session to database after user login.
+        Transfers all items from CartSession to CartDB and clears the session cart.
+        """
+        from myapp.models import Product
+
+        # Get session cart
+        session_cart = CartSession(request)
+        session_data = session_cart._cart
+
+        if not session_data:
+            logger.info("No items in session cart to sync")
+            return
+
+        # Get all product IDs from session
+        product_ids = [int(pid) for pid in session_data.keys()]
+
+        # ONE query to fetch all products
+        products = Product.objects.filter(id__in=product_ids)
+        products_dict = {product.id: product for product in products}
+
+        # ONE query to fetch all existing cart items for this user
+        existing_cart_items = Cart.objects.filter(
+            user=request.user,
+            product_id__in=product_ids
+        ).select_related('product')
+        existing_cart_dict = {item.product_id: item for item in existing_cart_items}
+
+        # Prepare cart items for bulk operations
+        cart_items_to_update = []
+        cart_items_to_create = []
+
+        for product_id_str, item_data in session_data.items():
+            product_id = int(product_id_str)
+            product = products_dict.get(product_id)
+
+            if not product:
+                logger.warning(f"Product {product_id} not found, skipping sync")
+                continue
+
+            quantity = item_data.get('quantity', 1)
+
+            # Check if item already exists in DB cart (using dict, no query!)
+            existing_item = existing_cart_dict.get(product_id)
+            if existing_item:
+                # Update existing item
+                existing_item.quantity += quantity
+                cart_items_to_update.append(existing_item)
+            else:
+                # Create new item
+                cart_items_to_create.append(
+                    Cart(user=request.user, product=product, quantity=quantity)
+                )
+
+        # Use CartDB methods for bulk operations
+        db_cart = CartDB(request)
+        
+        if cart_items_to_update:
+            db_cart.bulk_update_items(cart_items_to_update)
+
+        if cart_items_to_create:
+            db_cart.bulk_create_items(cart_items_to_create)
+
+        synced_count = len(cart_items_to_update) + len(cart_items_to_create)
+
+        # Clear session cart after successful sync
+        if synced_count > 0:
+            session_cart.clear_cart()
+            logger.info(f"Successfully synced {synced_count} items from session to DB cart")
+
 
 class CartSession(CartInterface, CartCalculatorMixin):
     def __init__(self, request: HttpRequest) -> None:
