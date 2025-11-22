@@ -1,6 +1,17 @@
 /node_modules/
-/.venv/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+env/
+
+# Media
 /media/
 /media/media/
 /djangoProject/settings.py
-
