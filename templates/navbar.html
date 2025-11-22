@@ -9,7 +9,7 @@
         <!-- Кнопка меню для мобильных устройств -->
         <button class="md:hidden flex items-center text-gray-600 hover:text-gray-800 ml-auto" id="mobile-menu-button">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
+                stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
             </svg>
         </button>
@@ -23,36 +23,37 @@
 
         <!-- Правая часть -->
         <div class="hidden md:flex items-center gap-6 ml-auto">
-            <div class="relative flex flex-col items-center cursor-pointer">
+            <a href="{% url 'favorites:list' %}" class="relative flex flex-col items-center cursor-pointer">
                 <img src="/static/images/redWishlist.svg" alt="Wishlist" class="w-8 h-8">
-                <span class="text-gray-600 text-xs mt-1">0</span>
-            </div>
+                <span id="favorites-count" class="text-gray-600 text-xs mt-1">{{ favorites_count|default:0 }}</span>
+            </a>
 
             <a href="{% url 'cart:cart_view' %}" class="relative flex flex-col items-center cursor-pointer"
-               id="cart-button">
+                id="cart-button">
                 <img src="/static/images/cart.svg" alt="Cart" class="w-8 h-8">
                 <span id="cart-count" class="text-gray-600 text-xs mt-1">
-                {% if cart_count > 0 %}
+                    {% if cart_count > 0 %}
                     {{ cart_count }}
-                {% else %}
+                    {% else %}
                     0
-                {% endif %}
+                    {% endif %}
                 </span>
 
             </a>
 
             {% if user.is_authenticated %}
-                <a href="{% url 'users:profile' %}" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">
-                    Профиль
-                </a>
-                <form action="{% url 'users:logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">
-                        Выйти
-                    </button>
-                </form>
+            <a href="{% url 'users:profile' %}" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">
+                Профиль
+            </a>
+            <form action="{% url 'users:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">
+                    Выйти
+                </button>
+            </form>
             {% else %}
-                <a href="{% url 'users:login' %}" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">Войти</a>
+            <a href="{% url 'users:login' %}"
+                class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">Войти</a>
             {% endif %}
         </div>
     </div>
@@ -65,19 +66,18 @@
             <a href="#" class="text-gray-600 hover:text-gray-800 font-medium">Контакты</a>
             <div class="flex flex-col items-start gap-2 mt-4">
                 {% if user.is_authenticated %}
-                    <p class="text-gray-600 hover:text-gray-800 font-medium">{{ user.username }}</p>
-                    <form action="{% url 'users:logout' %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">
-                            Выйти
-                        </button>
-                    </form>
+                <p class="text-gray-600 hover:text-gray-800 font-medium">{{ user.username }}</p>
+                <form action="{% url 'users:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">
+                        Выйти
+                    </button>
+                </form>
                 {% else %}
-                    <a href="{% url 'users:login' %}"
-                       class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">Войти</a>
+                <a href="{% url 'users:login' %}"
+                    class="text-white bg-blue-600 hover:bg-blue-800 px-4 py-2 rounded">Войти</a>
                 {% endif %}
             </div>
         </div>
     </div>
 </nav>
-

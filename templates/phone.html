@@ -3,90 +3,97 @@
 {% load static %}
 
 {% block content %}
-    <div class="min-h-screen">
-        <div class="max-w-6xl mx-auto p-6">
-            <!-- Основной контейнер товара -->
-            <div class="flex flex-col-reverse md:flex-row bg-white shadow-lg overflow-hidden">
+<div class="min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Основной контейнер товара -->
+        <div class="flex flex-col-reverse md:flex-row bg-white shadow-lg overflow-hidden">
 
-                <!-- Панель мини-фотографий (скрыта на мобильных устройствах) -->
-                <div class="w-full md:w-1/4 p-4 space-y-4 flex flex-col items-center md:block">
-                    <div class="w-24 h-24 rounded-lg border border-gray-300 p-1 cursor-pointer">
-                        <img src="{{ item.image_url }}" alt="Фото 1" class="w-full h-full object-cover rounded-lg"
-                             onclick="changeMainImage('{{ item.image_url }}')">
-                    </div>
-                    <div class="w-24 h-24 rounded-lg border border-gray-300 p-1 cursor-pointer">
-                        <img src="{{ item.image_url }}" alt="Фото 2" class="w-full h-full object-cover rounded-lg"
-                             onclick="changeMainImage('{{ item.image_url }}')">
-                    </div>
-                    <div class="w-24 h-24 rounded-lg border border-gray-300 p-1 cursor-pointer">
-                        <img src="{{ item.image_url }}" alt="Фото 3" class="w-full h-full object-cover rounded-lg"
-                             onclick="changeMainImage('{{ item.image_url }}')">
-                    </div>
+            <!-- Панель мини-фотографий (скрыта на мобильных устройствах) -->
+            <div class="w-full md:w-1/4 p-4 space-y-4 flex flex-col items-center md:block">
+                <div class="w-24 h-24 rounded-lg border border-gray-300 p-1 cursor-pointer">
+                    <img src="{{ item.image_url }}" alt="Фото 1" class="w-full h-full object-cover rounded-lg"
+                        onclick="changeMainImage('{{ item.image_url }}')">
                 </div>
-
-                <!-- Основное фото товара -->
-                <div class="w-full md:w-3/4 p-4 flex justify-center items-center bg-gray-100 border border-gray-300 rounded-lg">
-                    <img id="main-image" src="{{ item.image_url }}" alt="Основное фото"
-                         class="w-full h-auto object-cover rounded-lg">
+                <div class="w-24 h-24 rounded-lg border border-gray-300 p-1 cursor-pointer">
+                    <img src="{{ item.image_url }}" alt="Фото 2" class="w-full h-full object-cover rounded-lg"
+                        onclick="changeMainImage('{{ item.image_url }}')">
                 </div>
-
-                <!-- Информация о товаре -->
-                <div class="w-full md:w-2/3 p-6 flex flex-col justify-between">
-                    <!-- id и название товара с вишлистом -->
-                    <div class="flex items-center justify-between">
-                        <p class="text-gray-600">id: {{ item.id }}</p>
-                        <button class="wishlist-button hover:text-red-700 hover:bg-gray-200 focus:outline-none transition-transform active:scale-90 rounded-lg">
-                            <img class="wishlist-icon w-6 h-6 cursor-pointer" src="/static/images/wishlist.svg"
-                                 alt="Wishlist">
-                        </button>
-                    </div>
-
-                    <!-- Название товара -->
-                    <h1 class="text-3xl font-semibold text-gray-900 mt-1">{{ item.name }}</h1>
-
-                    <div class="flex flex-col md:flex-row items-center justify-between my-auto mx-8">
-                        <!-- Цена -->
-                        <p class="text-3xl font-bold text-green-600">
-                            {{ item.price }}₽
-                        </p>
-
-                        <!-- Кнопка купить -->
-                        <button data-product-id="{{ item.id }}" class="add-to-cart bg-blue-600 text-white hover:bg-blue-700 px-6 py-2 rounded-md mt-4 md:mt-0 w-3/5 transition-all transform hover:scale-105">
-                            Купить
-                        </button>
-                    </div>
-
-                    <!-- Характеристики товара (Тип и Вес) внизу -->
-                    <div class="space-y-2 mt-auto">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600 font-medium">Тип:</span>
-                            <span class="text-gray-800">{{ item.type }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600 font-medium">Категория:</span>
-                            <span class="text-gray-800">{{ item.category.name }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600 font-medium">Вес:</span>
-                            <span class="text-gray-800">{{ item.weight }} кг</span>
-                        </div>
-                    </div>
+                <div class="w-24 h-24 rounded-lg border border-gray-300 p-1 cursor-pointer">
+                    <img src="{{ item.image_url }}" alt="Фото 3" class="w-full h-full object-cover rounded-lg"
+                        onclick="changeMainImage('{{ item.image_url }}')">
                 </div>
             </div>
 
-            <!-- Описание товара -->
-            <div class="mt-8 p-8 bg-white rounded-xl shadow-xl border-l-4 border-blue-500">
-                <h2 class="text-2xl font-semibold text-gray-900 mb-4">Описание товара</h2>
-                <p class="text-gray-600 text-lg leading-relaxed">{{ item.description }}</p>
+            <!-- Основное фото товара -->
+            <div
+                class="w-full md:w-3/4 p-4 flex justify-center items-center bg-gray-100 border border-gray-300 rounded-lg">
+                <img id="main-image" src="{{ item.image_url }}" alt="Основное фото"
+                    class="w-full h-auto object-cover rounded-lg">
+            </div>
+
+            <!-- Информация о товаре -->
+            <div class="w-full md:w-2/3 p-6 flex flex-col justify-between">
+                <!-- id и название товара с вишлистом -->
+                <div class="flex items-center justify-between">
+                    <p class="text-gray-600">id: {{ item.id }}</p>
+                    <button
+                        class="wishlist-button hover:text-red-700 hover:bg-gray-200 focus:outline-none transition-transform active:scale-90 rounded-lg"
+                        data-product-id="{{ item.id }}">
+                        <img class="wishlist-icon w-6 h-6 cursor-pointer"
+                            src="{% if is_favorite %}/static/images/redWishlist.svg{% else %}/static/images/wishlist.svg{% endif %}"
+                            alt="Wishlist">
+                    </button>
+                </div>
+
+                <!-- Название товара -->
+                <h1 class="text-3xl font-semibold text-gray-900 mt-1">{{ item.name }}</h1>
+
+                <div class="flex flex-col md:flex-row items-center justify-between my-auto mx-8">
+                    <!-- Цена -->
+                    <p class="text-3xl font-bold text-green-600">
+                        {{ item.price }}₽
+                    </p>
+
+                    <!-- Кнопка купить -->
+                    <button data-product-id="{{ item.id }}"
+                        class="add-to-cart bg-blue-600 text-white hover:bg-blue-700 px-6 py-2 rounded-md mt-4 md:mt-0 w-3/5 transition-all transform hover:scale-105">
+                        Купить
+                    </button>
+                </div>
+
+                <!-- Характеристики товара (Тип и Вес) внизу -->
+                <div class="space-y-2 mt-auto">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Тип:</span>
+                        <span class="text-gray-800">{{ item.type }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Категория:</span>
+                        <span class="text-gray-800">{{ item.category.name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Вес:</span>
+                        <span class="text-gray-800">{{ item.weight }} кг</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- JS для смены основного фото -->
-    <script>
-        function changeMainImage(newImageUrl) {
-            document.getElementById("main-image").src = newImageUrl;
-        }
-    </script>
+        <!-- Описание товара -->
+        <div class="mt-8 p-8 bg-white rounded-xl shadow-xl border-l-4 border-blue-500">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Описание товара</h2>
+            <p class="text-gray-600 text-lg leading-relaxed">{{ item.description }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- JS для смены основного фото -->
+<script>
+    function changeMainImage(newImageUrl) {
+        document.getElementById("main-image").src = newImageUrl;
+    }
+</script>
+
+<script src="{% static 'js/index.js' %}"></script>
 
 {% endblock content %}

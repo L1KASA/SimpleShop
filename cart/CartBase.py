@@ -296,7 +296,7 @@ class CartSyncService:
 
             quantity = item_data.get('quantity', 1)
 
-            # Check if item already exists in DB cart (using dict, no query!)
+            # Check if item already exists in DB cart
             existing_item = existing_cart_dict.get(product_id)
             if existing_item:
                 # Update existing item

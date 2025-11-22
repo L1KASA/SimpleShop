@@ -46,6 +46,10 @@ class LoginUser(LoginView):
         from cart.CartBase import CartSyncService
         CartSyncService.sync_session_to_db(self.request)
         
+        # Sync session favorites to database favorites
+        from favorites.FavoritesBase import FavoriteSyncService
+        FavoriteSyncService.sync_session_to_db(self.request)
+        
         return response
 
     def get_success_url(self):

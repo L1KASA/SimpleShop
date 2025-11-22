@@ -2,94 +2,85 @@
 {% load static %}
 
 {% block content %}
-    <div class="font-sans p-4 mx-auto lg:max-w-7xl md:max-w-4xl sm:max-w-full">
-        <h2 class="text-4xl font-extrabold text-gray-800 mb-12">Товары</h2>
+<div class="font-sans p-4 mx-auto lg:max-w-7xl md:max-w-4xl sm:max-w-full">
+    <h2 class="text-4xl font-extrabold text-gray-800 mb-12">Товары</h2>
 
-        <div class="flex gap-12"> <!-- Отступ между колонками -->
-            <!-- Фильтрация слева -->
-            <div class="w-1/4">
-                <form method="GET" class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-6">Фильтры</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="min_price" class="block text-sm font-medium text-gray-700">Мин. цена</label>
-                            <input type="number" name="min_price" id="min_price"
-                                   class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="От"
-                                   value="{{ request.GET.min_price }}">
-                        </div>
-                        <div>
-                            <label for="max_price" class="block text-sm font-medium text-gray-700">Макс. цена</label>
-                            <input type="number" name="max_price" id="max_price"
-                                   class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="До"
-                                   value="{{ request.GET.max_price }}">
-                        </div>
-                        <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700">Категория</label>
-                            <select name="category" id="category"
-                                    class="mt-1 p-2 border border-gray-300 rounded-md w-full">
-                                <option value="">Все категории</option>
-                                {% for category in categories %}
-                                    <option value="{{ category.name }}"
-                                            {% if category.name == request.GET.category %}selected{% endif %}>
-                                        {{ category.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <label for="min_weight" class="block text-sm font-medium text-gray-700">Мин. вес</label>
-                            <input type="number" step="0.01" name="min_weight" id="min_weight"
-                                   class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="От"
-                                   value="{{ request.GET.min_weight }}">
-                        </div>
-                        <div>
-                            <label for="max_weight" class="block text-sm font-medium text-gray-700">Макс. вес</label>
-                            <input type="number" step="0.01" name="max_weight" id="max_weight"
-                                   class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="До"
-                                   value="{{ request.GET.max_weight }}">
-                        </div>
-
-                        <div class="flex items-end">
-                            <button type="submit" class="bg-blue-600 text-white p-2 rounded-md w-full mt-6">Применить
-                                фильтры
-                            </button>
-                        </div>
+    <div class="flex gap-12"> <!-- Отступ между колонками -->
+        <!-- Фильтрация слева -->
+        <div class="w-1/4">
+            <form method="GET" class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-6">Фильтры</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="min_price" class="block text-sm font-medium text-gray-700">Мин. цена</label>
+                        <input type="number" name="min_price" id="min_price"
+                            class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="От"
+                            value="{{ request.GET.min_price }}">
                     </div>
-                </form>
-            </div>
-
-            <!-- Продукты справа -->
-            <div class="w-5/6"> <!-- Увеличено пространство для продуктов -->
-                {% if items %}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-                        {% for item in items %}
-                            <!-- Основные изменения здесь -->
-                            <div class="bg-white rounded overflow-hidden shadow-md cursor-pointer hover:scale-[1.02] transition-all flex flex-col h-full"> <!-- Добавляем flex и h-full -->
-                                <a href="{% url 'myapp:id_item' item.id %}" class="block flex-grow"> <!-- flex-grow для растягивания -->
-                                    <div class="w-full h-48 overflow-hidden"> <!-- Фиксированная высота изображения -->
-                                        <img src="{{ item.image_url }}" alt="{{ item.name }}"
-                                             class="w-full h-full object-cover object-center"/>
-                                    </div>
-                                    <div class="p-4 text-center">
-                                        <h3 class="text-lg font-bold text-gray-800 line-clamp-2">{{ item.name }}</h3>
-                                    </div>
-                                </a>
-                                <div class="px-2 flex items-center mt-auto pb-2"> <!-- mt-auto для прижатия к низу -->
-                                    <h4 class="text-lg font-bold text-gray-800">{{ item.price }} ₽</h4>
-                                    <button class="wishlist-button ml-auto p-2 rounded-full hover:bg-gray-200 focus:outline-none transition-transform active:scale-90">
-                                        <img class="wishlist-icon w-6 h-6 cursor-pointer"
-                                             src="/static/images/wishlist.svg" alt="Wishlist">
-                                    </button>
-                                </div>
-                            </div>
-                        {% endfor %}
+                    <div>
+                        <label for="max_price" class="block text-sm font-medium text-gray-700">Макс. цена</label>
+                        <input type="number" name="max_price" id="max_price"
+                            class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="До"
+                            value="{{ request.GET.max_price }}">
+                        <label for="min_weight" class="block text-sm font-medium text-gray-700">Мин. вес</label>
+                        <input type="number" step="0.01" name="min_weight" id="min_weight"
+                            class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="От"
+                            value="{{ request.GET.min_weight }}">
                     </div>
-                {% else %}
-                    <p class="text-gray-500 text-lg">Нет доступных товаров.</p>
-                {% endif %}
+                    <div>
+                        <label for="max_weight" class="block text-sm font-medium text-gray-700">Макс. вес</label>
+                        <input type="number" step="0.01" name="max_weight" id="max_weight"
+                            class="mt-1 p-2 border border-gray-300 rounded-md w-full" placeholder="До"
+                            value="{{ request.GET.max_weight }}">
+                    </div>
+
+                    <div class="flex items-end">
+                        <button type="submit" class="bg-blue-600 text-white p-2 rounded-md w-full mt-6">Применить
+                            фильтры
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Продукты справа -->
+        <div class="w-5/6"> <!-- Увеличено пространство для продуктов -->
+            {% if items %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                {% for item in items %}
+                <!-- Основные изменения здесь -->
+                <div
+                    class="bg-white rounded overflow-hidden shadow-md cursor-pointer hover:scale-[1.02] transition-all flex flex-col h-full">
+                    <!-- Добавляем flex и h-full -->
+                    <a href="{% url 'myapp:id_item' item.id %}" class="block flex-grow">
+                        <!-- flex-grow для растягивания -->
+                        <div class="w-full h-48 overflow-hidden"> <!-- Фиксированная высота изображения -->
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}"
+                                class="w-full h-full object-cover object-center" />
+                        </div>
+                        <div class="p-4 text-center">
+                            <h3 class="text-lg font-bold text-gray-800 line-clamp-2">{{ item.name }}</h3>
+                        </div>
+                    </a>
+                    <div class="px-2 flex items-center mt-auto pb-2"> <!-- mt-auto для прижатия к низу -->
+                        <h4 class="text-lg font-bold text-gray-800">{{ item.price }} ₽</h4>
+                        <button
+                            class="wishlist-button ml-auto p-2 rounded-full hover:bg-gray-200 focus:outline-none transition-transform active:scale-90"
+                            data-product-id="{{ item.id }}">
+                            <img class="wishlist-icon w-6 h-6 cursor-pointer"
+                                src="{% if item.id in favorites_ids %}/static/images/redWishlist.svg{% else %}/static/images/wishlist.svg{% endif %}"
+                                alt="Wishlist">
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <p class="text-gray-500 text-lg">Нет доступных товаров.</p>
+            {% endif %}
         </div>
     </div>
+</div>
 
-    <script src="{% static '/js/index.js' %}"></script>
+<script src="{% static 'js/index.js' %}"></script>
 {% endblock content %}

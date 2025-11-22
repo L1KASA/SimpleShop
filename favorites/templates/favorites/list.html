@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Избранное</h1>
+
+    {% if favorites_count == 0 %}
+    <div class="text-center py-12">
+        <img src="/static/images/wishlist.svg" alt="Empty" class="w-24 h-24 mx-auto mb-4 opacity-50">
+        <p class="text-gray-600 text-lg">Ваше избранное пусто</p>
+        <a href="{% url 'myapp:index' %}"
+            class="mt-8 inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+            Перейти к покупкам
+        </a>
+    </div>
+    {% else %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+        {% for product in products %}
+        <div class="bg-white rounded overflow-hidden shadow-md hover:scale-[1.02] transition-all flex flex-col h-full">
+            <a href="{% url 'myapp:id_item' product.id %}" class="block flex-grow">
+                <div class="w-full h-48 overflow-hidden">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                        class="w-full h-full object-cover object-center" />
+                </div>
+                <div class="p-4 text-center">
+                    <h3 class="text-lg font-bold text-gray-800 line-clamp-2">{{ product.name }}</h3>
+                </div>
+            </a>
+            <div class="px-2 flex items-center mt-auto pb-2">
+                <h4 class="text-lg font-bold text-gray-800">{{ product.price }} ₽</h4>
+                <button
+                    class="wishlist-button ml-auto p-2 rounded-full hover:bg-gray-200 focus:outline-none transition-transform active:scale-90"
+                    data-product-id="{{ product.id }}">
+                    <img class="wishlist-icon w-6 h-6 cursor-pointer" src="/static/images/redWishlist.svg"
+                        alt="Wishlist">
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}
