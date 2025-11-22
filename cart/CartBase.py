@@ -6,6 +6,7 @@ from django.http import HttpRequest
 from typing import Any, Dict
 
 from cart.models import Cart
+from cart.exceptions import CartOperationError
 from myapp.models import Product
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,31 @@ class CartInterface(ABC):
         pass
 
 
-class CartDB(CartInterface):
+class CartCalculatorMixin:
+    """Mixin for centralized cart calculation logic"""
+
+    @staticmethod
+    def _build_cart_item(product, quantity, price):
+        """Build a standardized cart item dictionary"""
+        from decimal import Decimal
+        item_total = Decimal(str(price)) * quantity
+        return {
+            'product': product,
+            'quantity': quantity,
+            'total_price': item_total,
+            'price': Decimal(str(price)),
+            'image': product.image.url if product.image else '',
+            'name': product.name
+        }
+
+    @staticmethod
+    def _calculate_total_price(cart_items):
+        """Calculate total price from cart items list"""
+        from decimal import Decimal
+        return sum(item['total_price'] for item in cart_items)
+
+
+class CartDB(CartInterface, CartCalculatorMixin):
     def __init__(self, request: HttpRequest) -> None:
         self._request = request
         self._user = request.user
@@ -76,12 +101,7 @@ class CartDB(CartInterface):
 
         except Exception as e:
             logger.error(f"Error adding to cart: {str(e)}")
-            return {
-                'success': False,
-                'message': 'Error adding product to cart',
-                'cart_count': self.get_cart_count(),
-                'in_db': True,
-            }
+            raise CartOperationError(f"Failed to add product to cart: {str(e)}") from e
 
     def update_quantity(self, product_id: int, quantity_change: int):
         """Update product quantity"""
@@ -111,11 +131,7 @@ class CartDB(CartInterface):
             }
         except Exception as e:
             logger.error(f"Error updating product quantity: {str(e)}")
-            return {
-                'success': False,
-                'message': 'Product not found in cart',
-                'cart_count': self.get_cart_count(),
-            }
+            raise CartOperationError(f"Failed to update quantity: {str(e)}") from e
 
     def remove_from_cart(self, product_id: int):
         try:
@@ -156,23 +172,25 @@ class CartDB(CartInterface):
     def get_cart_items(self):
         """Get cart items for template from database"""
         from decimal import Decimal
+        from django.db.models import F, Sum
         try:
             cart = Cart.objects.filter(user=self._user).select_related('product')
             cart_items = []
-            total_price = Decimal('0.00')
 
             for cart_item in cart:
-                item_total = cart_item.product.price * cart_item.quantity
-                total_price += item_total
+                cart_items.append(
+                    self._build_cart_item(
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                        price=cart_item.product.price
+                    )
+                )
 
-                cart_items.append({
-                    'product': cart_item.product,
-                    'quantity': cart_item.quantity,
-                    'total_price': item_total,
-                    'price': cart_item.product.price,
-                    'image': cart_item.product.image.url if cart_item.product.image else '',
-                    'name': cart_item.product.name
-                })
+            total_result = Cart.objects.filter(user=self._user).aggregate(
+                total=Sum(F('quantity') * F('product__price'))
+            )
+            total_price = total_result['total'] or Decimal('0.00')
+
             return {
                 'cart_items': cart_items,
                 'total_price': total_price,
@@ -182,13 +200,7 @@ class CartDB(CartInterface):
 
         except Exception as e:
             logger.error(f"Error getting cart data from DB: {str(e)}")
-            return {
-                'cart_items': [],
-                'total_price': Decimal('0.00'),
-                'cart_count': 0,
-                'in_db': True,
-                'error': str(e)
-            }
+            raise CartOperationError(f"Failed to get cart items: {str(e)}") from e
 
     def clear_cart(self):
         """Clear database cart"""
@@ -202,10 +214,7 @@ class CartDB(CartInterface):
             }
         except Exception as e:
             logger.error(e)
-            return {
-                'success': False,
-                'message': 'Cart not deleted',
-            }
+            raise CartOperationError(f"Failed to clear cart: {str(e)}") from e
 
     def save_cart(self):
         try:
@@ -219,13 +228,10 @@ class CartDB(CartInterface):
             }
         except Exception as e:
             logger.error(f'Cart not saved to database: {str(e)}')
-            return {
-                'success': False,
-                'message': 'Cart not saved',
-            }
+            raise CartOperationError(f"Failed to save cart: {str(e)}") from e
 
 
-class CartSession(CartInterface):
+class CartSession(CartInterface, CartCalculatorMixin):
     def __init__(self, request: HttpRequest) -> None:
         self._request = request
         self._session = request.session
@@ -255,8 +261,8 @@ class CartSession(CartInterface):
                 'in_db': False
             }
         except Exception as e:
-            logger.error(f"Database error adding product to cart: {str(e)}")
-            raise
+            logger.error(f"Error adding product to cart: {str(e)}")
+            raise CartOperationError(f"Failed to add product to session cart: {str(e)}") from e
 
     def update_quantity(self, product_id: int, quantity_change: int):
         """Update product quantity"""
@@ -317,32 +323,35 @@ class CartSession(CartInterface):
         try:
             cart = self._request.session.get('cart', {})
             cart_items = []
-            total_price = Decimal('0.00')
             products_to_remove = []
 
-            for product_id, item in cart.items():
-                try:
-                    product = Product.objects.get(id=int(product_id))
-                    item_total = Decimal(item['price']) * item['quantity']
-                    total_price += item_total
+            product_ids = [int(pid) for pid in cart.keys()]
+            
+            products = Product.objects.filter(id__in=product_ids)
+            products_dict = {product.id: product for product in products}
 
-                    cart_items.append({
-                        'product': product,
-                        'quantity': item['quantity'],
-                        'total_price': item_total,
-                        'price': Decimal(item['price']),
-                        'image': item.get('image', ''),
-                        'name': item.get('name', '')
-                    })
-                except Product.DoesNotExist:
-                    # Помечаем несуществующий товар для удаления
-                    products_to_remove.append(product_id)
+            for product_id_str, item in cart.items():
+                product_id = int(product_id_str)
+                product = products_dict.get(product_id)
+                
+                if product is None:
+                    products_to_remove.append(product_id_str)
+                    continue
 
-            # Удаляем несуществующие товары
+                cart_items.append(
+                    self._build_cart_item(
+                        product=product,
+                        quantity=item['quantity'],
+                        price=item['price']
+                    )
+                )
+
             if products_to_remove:
                 for product_id in products_to_remove:
                     del cart[product_id]
                 self.save_cart()
+
+            total_price = self._calculate_total_price(cart_items)
 
             return {
                 'cart_items': cart_items,
@@ -353,13 +362,7 @@ class CartSession(CartInterface):
 
         except Exception as e:
             logger.error(f"Error getting cart data from session: {str(e)}")
-            return {
-                'cart_items': [],
-                'total_price': Decimal('0.00'),
-                'cart_count': 0,
-                'in_db': False,
-                'error': str(e)
-            }
+            raise CartOperationError(f"Failed to get cart items from session: {str(e)}") from e
 
     def save_cart(self):
         """Save cart to session"""
@@ -373,10 +376,7 @@ class CartSession(CartInterface):
             }
         except Exception as e:
             logger.error(f'Cart not saved to session: {str(e)}')
-            return {
-                'success': False,
-                'message': 'Cart not saved to session',
-            }
+            raise CartOperationError(f"Failed to save cart to session: {str(e)}") from e
 
     def clear_cart(self):
         """Clear entire cart"""

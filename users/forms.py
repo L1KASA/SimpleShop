@@ -52,9 +52,14 @@ class UserPasswordChangeForm(PasswordChangeForm):
 class ProfileUserForm(forms.ModelForm):
     username = forms.CharField(disabled=True, widget=forms.TextInput(attrs={'class': 'form-input'}))
     email = forms.CharField(disabled=True, widget=forms.TextInput(attrs={'class': 'form-input'}))
-    this_year = datetime.date.today().year
-    date_birth = forms.DateField(label='Дата рождения',
-                                 widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5))))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        this_year = datetime.date.today().year
+        self.fields['date_birth'] = forms.DateField(
+            label='Дата рождения',
+            widget=forms.SelectDateWidget(years=tuple(range(this_year - 100, this_year - 5)))
+        )
 
     class Meta:
         model = get_user_model()
@@ -72,6 +77,7 @@ class ProfileUserForm(forms.ModelForm):
             'email': forms.TextInput(attrs={'class': 'form-input'}),
             'username': forms.TextInput(attrs={'class': 'form-input'}),
         }
+
 
 class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
