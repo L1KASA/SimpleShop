@@ -30,6 +30,7 @@ class OrderService:
             cart_data = cart_handler.get_cart_items()
             cart_items = {str(item['product'].id): item for item in cart_data['cart_items']}
 
+            order_items = []
             for product_id in selected_ids:
                 product_id_str = str(product_id)
                 if product_id_str not in cart_items:
@@ -39,12 +40,16 @@ class OrderService:
                 cart_item = cart_items[product_id_str]
                 product = cart_item['product']
 
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    price=cart_item['price'],
-                    quantity=cart_item['quantity']
+                order_items.append(
+                    OrderItem(
+                        order=order,
+                        product=product,
+                        price=cart_item['price'],
+                        quantity=cart_item['quantity']
+                    )
                 )
+
+            OrderItem.objects.bulk_create(order_items)
 
             for product_id in selected_ids:
                 cart_handler.remove_from_cart(product_id)
